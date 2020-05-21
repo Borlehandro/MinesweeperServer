@@ -31,8 +31,10 @@ public class MainController {
 
             exchange.sendResponseHeaders(200, respText.getBytes().length);
             OutputStream output = exchange.getResponseBody();
-            output.write(respText.getBytes());
-            output.flush();
+            for(int i = 0; i < 10000; ++i ) {
+                output.write(respText.getBytes());
+                output.flush();
+            }
             exchange.close();
         }));
 
