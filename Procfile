@@ -1,1 +1,1 @@
-web: java -jar out/artifacts/MinesweeperServer_jar/MinesweeperServer.jar
+web: java -jar 1.0-SNAPSHOT/MinesweeperServer-1.0-SNAPSHOT.jar
