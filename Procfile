@@ -1,1 +1,1 @@
-web: java -jar /app/tmp/cache/.m2/repository/org/example/MinesweeperServer/1.0-SNAPSHOT/MinesweeperServer-1.0-SNAPSHOT.jar
+web: java -jar target/MinesweeperServer-1.0-SNAPSHOT.jar
