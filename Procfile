@@ -1,0 +1,1 @@
+web: java -jar out/artifacts/MinesweeperServer_jar/MinesweeperServer.jar
