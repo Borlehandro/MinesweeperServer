@@ -1,17 +1,18 @@
 import api.ServerCommand;
 import com.alibaba.fastjson.JSONArray;
 import exceptions.NoResourceInitException;
-import model.ExternalCell;
 import model.Field;
 import model.Pair;
 import score.ScoreItem;
 import score.ScoreManager;
 import serialization.Serializer;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.time.LocalTime;
-import java.util.TreeSet;
 
 public class ClientHandler extends Thread {
 
@@ -53,7 +54,7 @@ public class ClientHandler extends Thread {
 
             String info;
 
-            while ((info = input.readLine()) != null) {
+            loop: while ((info = input.readLine()) != null) {
                 String[] args = info.split(" ");
                 switch (ServerCommand.valueOf(args[0])) {
                     case CONSOLE_HELP -> objectOutputStream.writeUTF(CONSOLE_COMMANDS_INFO);
@@ -65,7 +66,7 @@ public class ClientHandler extends Thread {
                         objectOutputStream.writeUTF(Serializer.externalToJson(field.getExternalCells()));
                     }
                     case HIGH_SCORE -> objectOutputStream.writeUTF(Serializer.scoreTableToJson(new ScoreManager().getScoreTable()));
-                    // Todo test
+
                     case CHECK -> {
                         if (field != null) {
                             if (field.check(Integer.parseInt(args[1]), Integer.parseInt(args[2]))) {
@@ -80,45 +81,57 @@ public class ClientHandler extends Thread {
                             } else objectOutputStream.writeUTF(new JSONArray().toJSONString());
                         }
                     }
-                    // Todo test
+
                     case SHOW_FIELD -> {
                         if (field != null) {
                             objectOutputStream.writeUTF(Serializer.externalToJson(field.getExternalCells()));
                         }
                     }
-                    // Todo test
+
                     case GET_MARKS -> {
                         if (field != null) {
                             objectOutputStream.writeUTF(Serializer.pairToJson(new Pair<>(field.getMarks(), field.getMarksLimit())));
                         }
                     }
-                    // Todo test
+
                     case IS_COMPLETED -> {
                         if (field != null)
                             objectOutputStream.writeUTF(String.valueOf(field.isCompleted()));
                     }
-                    // Todo test
+
                     case FLAG -> {
-                        if(field != null) {
+                        if (field != null) {
                             field.setFlag(Integer.parseInt(args[1]), Integer.parseInt(args[2]));
                             objectOutputStream.writeUTF(Serializer.externalToJson(field.getExternalCells()));
                         }
                     }
-                    // Todo test
+
                     case SAVE_SCORE -> {
                         new ScoreManager().add(args[1], LocalTime.parse(args[2], ScoreItem.timeFormatter));
                         objectOutputStream.writeUTF("OK");
                     }
-                    // Todo test
+
                     case GET_TOP_USER -> objectOutputStream.writeUTF(Serializer.scoreItemToJson(new ScoreManager().getBest()));
+
+                    case CLOSE -> {
+                        objectOutputStream.writeUTF("OK");
+                        objectOutputStream.flush();
+                        System.err.println("Closing " + socket.getInetAddress());
+                        socket.shutdownInput();
+                        socket.shutdownOutput();
+                        socket.close();
+                        break loop;
+
+                    }
+
                 }
 
-                objectOutputStream.flush();
-
-                System.err.println("Response was sent to " + socket.getInetAddress());
+                if(!socket.isClosed()) {
+                    objectOutputStream.flush();
+                    System.err.println("Response was sent to " + socket.getInetAddress());
+                }
             }
 
-            // socket.close();
         } catch (IOException | NoResourceInitException e) {
             e.printStackTrace();
         }
