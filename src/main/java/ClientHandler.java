@@ -16,7 +16,7 @@ import java.time.LocalTime;
 
 public class ClientHandler extends Thread {
 
-    private Socket socket;
+    private final Socket socket;
 
     // Todo MOVE IT INTO RESOURCES
 
@@ -70,13 +70,6 @@ public class ClientHandler extends Thread {
                     case CHECK -> {
                         if (field != null) {
                             if (field.check(Integer.parseInt(args[1]), Integer.parseInt(args[2]))) {
-
-                                for (int i = 0; i < field.getSize(); ++i) {
-                                    for (int j = 0; j < field.getSize(); ++j)
-                                        System.err.print(field.getExternalCells()[i][j].getSymbol() + " ");
-                                    System.err.println();
-                                }
-
                                 objectOutputStream.writeUTF(Serializer.externalToJson(field.getExternalCells()));
                             } else objectOutputStream.writeUTF(new JSONArray().toJSONString());
                         }
@@ -128,10 +121,10 @@ public class ClientHandler extends Thread {
 
                 if(!socket.isClosed()) {
                     objectOutputStream.flush();
-                    System.err.println("Response was sent to " + socket.getInetAddress());
+                    System.out.println("Response was sent to " + socket.getInetAddress());
                 }
             }
-
+            
         } catch (IOException | NoResourceInitException e) {
             e.printStackTrace();
         }

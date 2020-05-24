@@ -9,12 +9,10 @@ public class MainController {
         int serverPort = Integer.parseInt(System.getenv("PORT"));
 
         try {
-
             ServerSocket socket = new ServerSocket(serverPort);
 
             while (true) {
                 Socket clientSocket = socket.accept();
-                System.err.println("Accepted : " + clientSocket.getInetAddress());
                 ClientHandler clientHandler = new ClientHandler(clientSocket);
                 clientHandler.start();
             }
